@@ -1,0 +1,141 @@
+# =============================================================================
+# Build directories
+# =============================================================================
+build/
+cmake-build-*/
+out/
+release/
+
+# =============================================================================
+# IDE and Editor
+# =============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.cproject
+.settings/
+*.code-workspace
+
+# =============================================================================
+# C/C++ Compiled files
+# =============================================================================
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.dSYM/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+*.egg-info/
+.eggs/
+dist/
+*.egg
+*.whl
+.mypy_cache/
+.ruff_cache/
+
+# =============================================================================
+# Android
+# =============================================================================
+android/.gradle/
+android/build/
+android/*/build/
+android/local.properties
+android/*.iml
+android/.idea/
+*.apk
+*.aab
+*.aar
+*.jks
+*.keystore
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# =============================================================================
+# OS files
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =============================================================================
+# Backup and temporary
+# =============================================================================
+/backup/
+*.bak
+*.tmp
+*.temp
+*.orig
+*.log
+
+# =============================================================================
+# Test artifacts
+# =============================================================================
+Testing/
+test-results/
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# =============================================================================
+# Documentation build
+# =============================================================================
+docs/_build/
+docs/html/
+docs/latex/
+site/
+
+# =============================================================================
+# Package manager locks (keep or ignore based on preference)
+# =============================================================================
+# Uncomment to ignore lock files:
+# package-lock.json
+# yarn.lock
+# poetry.lock

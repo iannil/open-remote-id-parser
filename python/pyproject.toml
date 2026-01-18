@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orip"
+version = "0.1.0"
+description = "Open Remote ID Parser - Cross-platform library for parsing drone Remote ID signals"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "ORIP Contributors"}
+]
+keywords = ["drone", "uav", "remote-id", "astm-f3411", "ble", "bluetooth"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Security",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "black",
+    "mypy",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/open-remote-id-parser"
+Documentation = "https://github.com/your-org/open-remote-id-parser#readme"
+Repository = "https://github.com/your-org/open-remote-id-parser"
+Issues = "https://github.com/your-org/open-remote-id-parser/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["orip*"]
+
+[tool.setuptools.package-data]
+orip = ["lib/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
