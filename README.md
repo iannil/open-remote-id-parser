@@ -13,6 +13,10 @@
   <a href="#contributing">Contributing</a>
 </p>
 
+<p align="center">
+  <b>English</b> | <a href="README_zh-CN.md">中文</a>
+</p>
+
 ---
 
 **Open Remote ID Parser** is a lightweight C++ library for decoding drone Remote ID broadcasts. It supports multiple protocols (ASTM F3411, ASD-STAN) and transport layers (Bluetooth Legacy/Extended, WiFi Beacon/NAN), making it ideal for building drone detection applications on mobile devices, embedded systems, or desktop platforms.
