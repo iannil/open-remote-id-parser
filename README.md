@@ -55,7 +55,7 @@
 ## Supported Message Types
 
 | Message Type | Description |
-|--------------|-------------|
+| -------------- | ------------- |
 | Basic ID (0x0) | Drone serial number, registration ID |
 | Location (0x1) | Latitude, longitude, altitude, speed, heading |
 | Authentication (0x2) | Cryptographic authentication data |
@@ -72,7 +72,7 @@
 include(FetchContent)
 FetchContent_Declare(
     orip
-    GIT_REPOSITORY https://github.com/user/open-remote-id-parser.git
+    GIT_REPOSITORY https://github.com/iannil/open-remote-id-parser.git
     GIT_TAG v0.1.0
 )
 FetchContent_MakeAvailable(orip)
@@ -270,7 +270,7 @@ std::cout << "Max speed: " << stats.max_speed_mps << " m/s" << std::endl;
 ### Core Classes
 
 | Class | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `RemoteIDParser` | Main parser class, handles all protocols |
 | `UAVObject` | Complete drone data (ID, location, operator info) |
 | `ParseResult` | Result of parsing operation |
@@ -280,14 +280,14 @@ std::cout << "Max speed: " << stats.max_speed_mps << " m/s" << std::endl;
 ### Analysis Classes
 
 | Class | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `AnomalyDetector` | Detects spoofing and impossible patterns |
 | `TrajectoryAnalyzer` | Tracks flight paths, predicts positions |
 
 ### Protocol Decoders
 
 | Class | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `ASTM_F3411_Decoder` | ASTM F3411-22a (USA/International) |
 | `ASD_STAN_Decoder` | ASD-STAN EN 4709-002 (EU) |
 | `WiFiDecoder` | WiFi Beacon and NAN frames |
@@ -306,7 +306,7 @@ std::cout << "Max speed: " << stats.max_speed_mps << " m/s" << std::endl;
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/open-remote-id-parser.git
+git clone https://github.com/iannil/open-remote-id-parser.git
 cd open-remote-id-parser
 
 # Create build directory
@@ -328,7 +328,7 @@ sudo cmake --install .
 ### Build Options
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `ORIP_BUILD_TESTS` | ON | Build unit tests |
 | `ORIP_BUILD_EXAMPLES` | ON | Build example programs |
 | `ORIP_BUILD_SHARED` | OFF | Build shared library (.so/.dll) |
@@ -436,14 +436,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ASTM F3411](https://www.astm.org/f3411-22a.html) - Standard Specification for Remote ID
 - [ASD-STAN EN 4709-002](https://asd-stan.org/) - European Standard for Remote ID
 - [OpenDroneID](https://github.com/opendroneid) - Reference implementations
-
-## Related Projects
-
-- [DroneScanner](https://github.com/example/dronescanner) - Android app using ORIP
-- [SkySentry](https://github.com/example/skysentry) - Linux daemon for fixed installations
-
----
-
-<p align="center">
-  <sub>Built with passion for airspace safety</sub>
-</p>

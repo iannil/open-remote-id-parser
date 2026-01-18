@@ -55,7 +55,7 @@
 ## 支持的消息类型
 
 | 消息类型 | 描述 |
-|---------|------|
+| --------- | ------ |
 | Basic ID (0x0) | 无人机序列号、注册 ID |
 | Location (0x1) | 经纬度、高度、速度、航向 |
 | Authentication (0x2) | 加密认证数据 |
@@ -72,7 +72,7 @@
 include(FetchContent)
 FetchContent_Declare(
     orip
-    GIT_REPOSITORY https://github.com/user/open-remote-id-parser.git
+    GIT_REPOSITORY https://github.com/iannil/open-remote-id-parser.git
     GIT_TAG v0.1.0
 )
 FetchContent_MakeAvailable(orip)
@@ -270,7 +270,7 @@ std::cout << "最大速度: " << stats.max_speed_mps << " 米/秒" << std::endl;
 ### 核心类
 
 | 类 | 描述 |
-|---|------|
+| --- | ------ |
 | `RemoteIDParser` | 主解析器类，处理所有协议 |
 | `UAVObject` | 完整的无人机数据（ID、位置、操作员信息） |
 | `ParseResult` | 解析操作的结果 |
@@ -280,14 +280,14 @@ std::cout << "最大速度: " << stats.max_speed_mps << " 米/秒" << std::endl;
 ### 分析类
 
 | 类 | 描述 |
-|---|------|
+| --- | ------ |
 | `AnomalyDetector` | 检测欺骗和不可能的模式 |
 | `TrajectoryAnalyzer` | 追踪飞行路径、预测位置 |
 
 ### 协议解码器
 
 | 类 | 描述 |
-|---|------|
+| --- | ------ |
 | `ASTM_F3411_Decoder` | ASTM F3411-22a（美国/国际） |
 | `ASD_STAN_Decoder` | ASD-STAN EN 4709-002（欧盟） |
 | `WiFiDecoder` | WiFi Beacon 和 NAN 帧 |
@@ -306,7 +306,7 @@ std::cout << "最大速度: " << stats.max_speed_mps << " 米/秒" << std::endl;
 
 ```bash
 # 克隆仓库
-git clone https://github.com/user/open-remote-id-parser.git
+git clone https://github.com/iannil/open-remote-id-parser.git
 cd open-remote-id-parser
 
 # 创建构建目录
@@ -328,7 +328,7 @@ sudo cmake --install .
 ### 构建选项
 
 | 选项 | 默认值 | 描述 |
-|-----|-------|------|
+| ----- | ------- | ------ |
 | `ORIP_BUILD_TESTS` | ON | 构建单元测试 |
 | `ORIP_BUILD_EXAMPLES` | ON | 构建示例程序 |
 | `ORIP_BUILD_SHARED` | OFF | 构建共享库（.so/.dll） |
@@ -436,14 +436,3 @@ find src include -name "*.cpp" -o -name "*.h" | xargs clang-format -i
 - [ASTM F3411](https://www.astm.org/f3411-22a.html) - Remote ID 标准规范
 - [ASD-STAN EN 4709-002](https://asd-stan.org/) - 欧洲 Remote ID 标准
 - [OpenDroneID](https://github.com/opendroneid) - 参考实现
-
-## 相关项目
-
-- [DroneScanner](https://github.com/example/dronescanner) - 使用 ORIP 的 Android 应用
-- [SkySentry](https://github.com/example/skysentry) - 用于固定安装的 Linux 守护进程
-
----
-
-<p align="center">
-  <sub>为空域安全而生</sub>
-</p>
