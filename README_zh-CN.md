@@ -431,6 +431,38 @@ find src include -name "*.cpp" -o -name "*.h" | xargs clang-format -i
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
 
+## 开发路线图
+
+### 已完成
+
+- [x] **核心引擎**: 零拷贝设计的 C++ 解析库
+- [x] **ASTM F3411**: 完整支持全部 7 种消息类型（Basic ID、Location、Authentication、Self-ID、System、Operator ID、Message Pack）
+- [x] **ASD-STAN EN 4709-002**: 欧洲标准，含 EU Operator ID 验证
+- [x] **GB/T 接口**: 中国国标预留（等待规范发布）
+- [x] **多传输方式**: 蓝牙 4.x Legacy、蓝牙 5.x Extended/Long Range、WiFi Beacon、WiFi NAN
+- [x] **C API**: 完整的 FFI 接口，支持回调
+- [x] **Android 绑定**: Kotlin/JNI 封装，AAR 打包
+- [x] **Python 绑定**: 基于 ctypes，支持上下文管理器
+- [x] **会话管理器**: 去重、超时处理、事件回调
+- [x] **异常检测**: 8 种检测类型（速度、位置、重放攻击、信号等）
+- [x] **轨迹分析**: 平滑、预测、模式分类
+- [x] **单元测试**: 70+ 测试用例覆盖所有模块
+- [x] **文档**: README（中/英）、CONTRIBUTING、CHANGELOG
+
+### 进行中
+
+- [ ] **发布产物**: 构建 `/release` 目录（静态库/共享库）
+- [ ] **CI/CD 完善**: GitHub Actions 构建验证
+- [ ] **性能基准测试**: 解析延迟、内存占用分析
+
+### 计划中
+
+- [ ] **v0.1.0 发布**: 首个正式版本
+- [ ] **Android 示例应用**: 完整的集成示例
+- [ ] **真机测试**: 使用真实无人机抓包数据验证
+- [ ] **API 文档**: 自动生成参考文档（Doxygen）
+- [ ] **iOS 绑定**: 通过 C API 的 Swift 封装
+
 ## 致谢
 
 - [ASTM F3411](https://www.astm.org/f3411-22a.html) - Remote ID 标准规范

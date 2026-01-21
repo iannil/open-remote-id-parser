@@ -431,6 +431,38 @@ find src include -name "*.cpp" -o -name "*.h" | xargs clang-format -i
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Roadmap
+
+### Completed
+
+- [x] **Core Engine**: C++ parsing library with zero-copy design
+- [x] **ASTM F3411**: Full support for all 7 message types (Basic ID, Location, Authentication, Self-ID, System, Operator ID, Message Pack)
+- [x] **ASD-STAN EN 4709-002**: European standard with EU Operator ID validation
+- [x] **GB/T Interface**: Placeholder for Chinese standard (awaiting specification)
+- [x] **Multi-Transport**: BT 4.x Legacy, BT 5.x Extended/Long Range, WiFi Beacon, WiFi NAN
+- [x] **C API**: Complete FFI interface with callback support
+- [x] **Android Bindings**: Kotlin/JNI wrapper with AAR packaging
+- [x] **Python Bindings**: ctypes-based with context manager support
+- [x] **Session Manager**: Deduplication, timeout handling, event callbacks
+- [x] **Anomaly Detection**: 8 detection types (speed, position, replay attack, signal, etc.)
+- [x] **Trajectory Analysis**: Smoothing, prediction, pattern classification
+- [x] **Unit Tests**: 70+ test cases covering all modules
+- [x] **Documentation**: README (EN/CN), CONTRIBUTING, CHANGELOG
+
+### In Progress
+
+- [ ] **Release Artifacts**: Build `/release` directory with static/shared libs
+- [ ] **CI/CD Enhancement**: GitHub Actions build verification
+- [ ] **Performance Benchmarks**: Parsing latency, memory profiling
+
+### Planned
+
+- [ ] **v0.1.0 Release**: First official release
+- [ ] **Android Sample App**: Complete integration example
+- [ ] **Real Device Testing**: Validation with captured packets from actual drones
+- [ ] **API Documentation**: Auto-generated reference docs (Doxygen)
+- [ ] **iOS Bindings**: Swift wrapper via C API
+
 ## Acknowledgments
 
 - [ASTM F3411](https://www.astm.org/f3411-22a.html) - Standard Specification for Remote ID
