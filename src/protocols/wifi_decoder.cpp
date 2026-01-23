@@ -75,6 +75,7 @@ WiFiDecodeResult WiFiDecoder::decodeBeacon(const std::vector<uint8_t>& payload, 
     }
 
     // Decode the ASTM payload (skip vendor type byte)
+    // Check for underflow before subtraction
     if (ie_len > 1) {
         if (decodeASTMPayload(ie_data + 1, ie_len - 1, uav)) {
             result.success = true;
@@ -83,6 +84,8 @@ WiFiDecodeResult WiFiDecoder::decodeBeacon(const std::vector<uint8_t>& payload, 
         } else {
             result.error = "Failed to decode ASTM payload";
         }
+    } else {
+        result.error = "Vendor IE data too short";
     }
 
     return result;

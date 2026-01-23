@@ -1,0 +1,64 @@
+[
+  {
+    "name": "wifi_beacon_basic",
+    "description": "WiFi Beacon frame with Remote ID Vendor IE",
+    "protocol": "WIFI_BEACON",
+    "frame_type": "BEACON",
+    "payload_hex": "dd1dfa0b8c00001234567890abcdef12345678900102f34d05c9b40500006400",
+    "expected": {
+      "parse_success": true,
+      "vendor_oui": "FA:0B:8C",
+      "vendor_type": 0x00,
+      "contains_basic_id": true,
+      "contains_location": true
+    }
+  },
+  {
+    "name": "wifi_nan_discovery",
+    "description": "WiFi NAN Service Discovery Frame",
+    "protocol": "WIFI_NAN",
+    "frame_type": "SERVICE_DISCOVERY",
+    "payload_hex": "dd25fa0b8c01006f70656e2d64726f6e652d696401001234567890abcdef123456789000",
+    "expected": {
+      "parse_success": true,
+      "service_name": "org.opendroneid.remoteid",
+      "service_info_present": true
+    }
+  },
+  {
+    "name": "wifi_beacon_multipack",
+    "description": "WiFi Beacon with Message Pack (multiple messages)",
+    "protocol": "WIFI_BEACON",
+    "frame_type": "BEACON",
+    "payload_hex": "dd3ffa0b8c000f021234567890abcdef12345678900102f34d05c9b4050000640004deadbeefcafe0000",
+    "expected": {
+      "parse_success": true,
+      "message_count": 2,
+      "contains_basic_id": true,
+      "contains_location": true
+    }
+  },
+  {
+    "name": "wifi_beacon_non_remoteid",
+    "description": "WiFi Beacon with non-RemoteID Vendor IE (should skip)",
+    "protocol": "WIFI_BEACON",
+    "frame_type": "BEACON",
+    "payload_hex": "dd0800504f9a0900000000",
+    "expected": {
+      "parse_success": false,
+      "error": "Not a Remote ID frame",
+      "notes": "WFA Wi-Fi Direct OUI"
+    }
+  },
+  {
+    "name": "wifi_beacon_truncated",
+    "description": "Truncated WiFi Beacon frame",
+    "protocol": "WIFI_BEACON",
+    "frame_type": "BEACON",
+    "payload_hex": "dd05fa0b8c",
+    "expected": {
+      "parse_success": false,
+      "error": "Frame too short"
+    }
+  }
+]

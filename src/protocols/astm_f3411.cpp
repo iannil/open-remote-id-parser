@@ -89,7 +89,10 @@ bool ASTM_F3411_Decoder::findODIDData(const std::vector<uint8_t>& payload,
                            (static_cast<uint16_t>(payload[i + 3]) << 8);
 
             if (uuid == ODID_SERVICE_UUID) {
-                // Found ODID data
+                // Found ODID data - check for underflow before subtraction
+                if (ad_len < 3) {
+                    return false;  // Insufficient data for ODID
+                }
                 data = payload.data() + i + 4;
                 len = ad_len - 3;  // Subtract AD type and UUID
 
@@ -170,6 +173,11 @@ DecodeResult ASTM_F3411_Decoder::decodeLegacy(const std::vector<uint8_t>& payloa
 
             if (uuid == ODID_SERVICE_UUID) {
                 // Found ODID data, decode the message(s)
+                // Check for underflow before subtraction
+                if (len < 3) {
+                    i += len + 1;
+                    continue;  // Insufficient data for ODID
+                }
                 const uint8_t* msg_data = payload.data() + i + 4;
                 size_t msg_len = len - 3;  // Subtract AD type and UUID
 

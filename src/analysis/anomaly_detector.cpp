@@ -2,6 +2,7 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
+#include <limits>
 
 namespace orip {
 namespace analysis {
@@ -12,6 +13,19 @@ constexpr double EARTH_RADIUS_M = 6371000.0;
 // RSSI to distance approximation constants (path loss model)
 constexpr double RSSI_REF = -50.0;      // Reference RSSI at 1m
 constexpr double PATH_LOSS_EXP = 2.5;   // Path loss exponent
+
+// Epsilon for floating-point comparisons
+constexpr double EPSILON_TIME = 1e-9;   // 1 nanosecond
+constexpr float EPSILON_COORD = 1e-7f;  // ~1cm precision
+
+// Helper: Check if float is valid (not NaN or Inf)
+static inline bool isValidFloat(float v) {
+    return std::isfinite(v);
+}
+
+static inline bool isValidDouble(double v) {
+    return std::isfinite(v);
+}
 
 void UAVHistory::addPosition(const LocationVector& loc,
                               int8_t rssi,
@@ -62,7 +76,10 @@ std::vector<Anomaly> AnomalyDetector::analyze(const UAVObject& uav, int8_t rssi)
 
         double time_delta = std::chrono::duration<double>(now - prev_time).count();
 
-        if (time_delta > 0.0 && time_delta < config_.max_timestamp_gap_ms / 1000.0) {
+        // Use epsilon comparison for time and validate
+        if (isValidDouble(time_delta) &&
+            time_delta > EPSILON_TIME &&
+            time_delta < config_.max_timestamp_gap_ms / 1000.0) {
             // Check speed anomalies
             auto speed_anomalies = checkSpeedAnomalies(uav.id, uav.location, prev, time_delta);
             anomalies.insert(anomalies.end(), speed_anomalies.begin(), speed_anomalies.end());
@@ -99,7 +116,14 @@ std::vector<Anomaly> AnomalyDetector::checkSpeedAnomalies(
 
     std::vector<Anomaly> anomalies;
 
-    if (time_delta_s <= 0.0) {
+    // Validate time delta with epsilon
+    if (!isValidDouble(time_delta_s) || time_delta_s <= EPSILON_TIME) {
+        return anomalies;
+    }
+
+    // Validate coordinates
+    if (!isValidDouble(current.latitude) || !isValidDouble(current.longitude) ||
+        !isValidDouble(previous.latitude) || !isValidDouble(previous.longitude)) {
         return anomalies;
     }
 
@@ -108,6 +132,10 @@ std::vector<Anomaly> AnomalyDetector::checkSpeedAnomalies(
         previous.latitude, previous.longitude,
         current.latitude, current.longitude
     );
+
+    if (!isValidDouble(distance)) {
+        return anomalies;
+    }
 
     double calculated_speed = distance / time_delta_s;
 
@@ -126,32 +154,35 @@ std::vector<Anomaly> AnomalyDetector::checkSpeedAnomalies(
         anomalies.push_back(a);
     }
 
-    // Check vertical speed
-    float altitude_change = std::abs(current.altitude_geo - previous.altitude_geo);
-    float vertical_speed = altitude_change / static_cast<float>(time_delta_s);
+    // Check vertical speed - validate altitude values
+    if (isValidFloat(current.altitude_geo) && isValidFloat(previous.altitude_geo)) {
+        float altitude_change = std::abs(current.altitude_geo - previous.altitude_geo);
+        float vertical_speed = altitude_change / static_cast<float>(time_delta_s);
 
-    if (vertical_speed > config_.max_vertical_speed) {
-        Anomaly a;
-        a.type = AnomalyType::ALTITUDE_SPIKE;
-        a.severity = vertical_speed > config_.max_vertical_speed * 2 ?
-                     AnomalySeverity::CRITICAL : AnomalySeverity::WARNING;
-        a.uav_id = id;
-        a.description = "Vertical speed exceeds physical limits";
-        a.expected_value = config_.max_vertical_speed;
-        a.actual_value = vertical_speed;
-        a.confidence = std::min(1.0, static_cast<double>(vertical_speed) /
-                                      (config_.max_vertical_speed * 3));
-        a.detected_at = std::chrono::steady_clock::now();
+        if (isValidFloat(vertical_speed) && vertical_speed > config_.max_vertical_speed) {
+            Anomaly a;
+            a.type = AnomalyType::ALTITUDE_SPIKE;
+            a.severity = vertical_speed > config_.max_vertical_speed * 2 ?
+                         AnomalySeverity::CRITICAL : AnomalySeverity::WARNING;
+            a.uav_id = id;
+            a.description = "Vertical speed exceeds physical limits";
+            a.expected_value = config_.max_vertical_speed;
+            a.actual_value = vertical_speed;
+            a.confidence = std::min(1.0, static_cast<double>(vertical_speed) /
+                                          (config_.max_vertical_speed * 3));
+            a.detected_at = std::chrono::steady_clock::now();
 
-        anomalies.push_back(a);
+            anomalies.push_back(a);
+        }
     }
 
-    // Check acceleration (if we have reported speed)
-    if (current.speed_horizontal >= 0 && previous.speed_horizontal >= 0) {
+    // Check acceleration (if we have reported speed and values are valid)
+    if (isValidFloat(current.speed_horizontal) && isValidFloat(previous.speed_horizontal) &&
+        current.speed_horizontal >= 0 && previous.speed_horizontal >= 0) {
         float speed_change = std::abs(current.speed_horizontal - previous.speed_horizontal);
         float acceleration = speed_change / static_cast<float>(time_delta_s);
 
-        if (acceleration > config_.max_acceleration) {
+        if (isValidFloat(acceleration) && acceleration > config_.max_acceleration) {
             Anomaly a;
             a.type = AnomalyType::SPEED_IMPOSSIBLE;
             a.severity = AnomalySeverity::WARNING;

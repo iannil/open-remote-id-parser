@@ -1,0 +1,141 @@
+[
+  {
+    "name": "boundary_max_latitude",
+    "description": "Maximum latitude value (+90 degrees - North Pole)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d010101035a0000000000000064000000000",
+    "expected": {
+      "parse_success": true,
+      "latitude": 90.0,
+      "longitude": 0.0
+    }
+  },
+  {
+    "name": "boundary_min_latitude",
+    "description": "Minimum latitude value (-90 degrees - South Pole)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010103a6ffffff00000000640000000000",
+    "expected": {
+      "parse_success": true,
+      "latitude": -90.0,
+      "longitude": 0.0
+    }
+  },
+  {
+    "name": "boundary_max_longitude",
+    "description": "Maximum longitude value (+180 degrees)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d0101010300000000b40a000064000000000",
+    "expected": {
+      "parse_success": true,
+      "latitude": 0.0,
+      "longitude": 180.0
+    }
+  },
+  {
+    "name": "boundary_min_longitude",
+    "description": "Minimum longitude value (-180 degrees)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010103000000004cf5ffff64000000000",
+    "expected": {
+      "parse_success": true,
+      "latitude": 0.0,
+      "longitude": -180.0
+    }
+  },
+  {
+    "name": "boundary_empty_payload",
+    "description": "Empty payload - should fail gracefully",
+    "protocol": "ASTM_F3411",
+    "message_type": "UNKNOWN",
+    "payload_hex": "",
+    "expected": {
+      "parse_success": false,
+      "error": "Empty payload"
+    }
+  },
+  {
+    "name": "boundary_min_length",
+    "description": "Minimum valid BLE advertisement length",
+    "protocol": "ASTM_F3411",
+    "message_type": "UNKNOWN",
+    "payload_hex": "0d16fa0d",
+    "expected": {
+      "parse_success": false,
+      "error": "Payload too short"
+    }
+  },
+  {
+    "name": "boundary_truncated_basic_id",
+    "description": "Truncated Basic ID message (missing data)",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d0001",
+    "expected": {
+      "parse_success": false,
+      "error": "Truncated message"
+    }
+  },
+  {
+    "name": "boundary_max_speed",
+    "description": "Maximum horizontal speed (254.75 m/s)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b4050000ff03ff000000",
+    "expected": {
+      "parse_success": true,
+      "speed_horizontal": 254.75,
+      "notes": "1019 * 0.25 = 254.75 m/s (max encoded value)"
+    }
+  },
+  {
+    "name": "boundary_zero_speed",
+    "description": "Zero speed (stationary)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b4050000640000000000",
+    "expected": {
+      "parse_success": true,
+      "speed_horizontal": 0.0,
+      "speed_vertical": 0.0
+    }
+  },
+  {
+    "name": "boundary_all_zeros",
+    "description": "All zero payload (after header)",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d0000000000000000000000000000000000000000",
+    "expected": {
+      "parse_success": true,
+      "id_type": "NONE",
+      "ua_type": "NONE"
+    }
+  },
+  {
+    "name": "boundary_all_ff",
+    "description": "All 0xFF payload (stress test)",
+    "protocol": "ASTM_F3411",
+    "message_type": "UNKNOWN",
+    "payload_hex": "0d16fa0dffffffffffffffffffffffffffffffffffffffff",
+    "expected": {
+      "parse_success": false,
+      "error": "Invalid message type"
+    }
+  },
+  {
+    "name": "boundary_max_message_type",
+    "description": "Invalid message type (0x0E)",
+    "protocol": "ASTM_F3411",
+    "message_type": "UNKNOWN",
+    "payload_hex": "0d16fa0d0e00000000000000000000000000000000000000",
+    "expected": {
+      "parse_success": false,
+      "error": "Unknown message type"
+    }
+  }
+]

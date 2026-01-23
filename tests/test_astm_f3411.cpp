@@ -218,3 +218,373 @@ TEST_F(ASTM_F3411_Test, SessionManagerTracking) {
     ASSERT_NE(uav1, nullptr);
     EXPECT_EQ(uav1->rssi, -60);
 }
+
+// =============================================================================
+// Authentication Message Tests (Type 0x2)
+// =============================================================================
+
+TEST_F(ASTM_F3411_Test, DecodeAuthentication_Basic) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Byte 0: Message type (0x2) | Protocol version (0x2)
+    msg[0] = 0x22;
+
+    // Byte 1: Auth type (0x0 = None) | Page number (0)
+    msg[1] = 0x00;
+
+    // Bytes 2-24: Auth data
+    for (int i = 2; i < MESSAGE_SIZE; i++) {
+        msg[i] = static_cast<uint8_t>(i - 2);
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::AUTH);
+    EXPECT_FALSE(uav.auth_data.empty());
+}
+
+TEST_F(ASTM_F3411_Test, DecodeAuthentication_WithTimestamp) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Message type AUTH
+    msg[0] = 0x22;
+
+    // Auth type 1 (UAS ID Signature), Page 0
+    msg[1] = 0x10;
+
+    // Page count in byte 2
+    msg[2] = 0x01;
+
+    // Timestamp (4 bytes, starting byte 3)
+    uint32_t timestamp = 1234567890;
+    msg[3] = timestamp & 0xFF;
+    msg[4] = (timestamp >> 8) & 0xFF;
+    msg[5] = (timestamp >> 16) & 0xFF;
+    msg[6] = (timestamp >> 24) & 0xFF;
+
+    // Auth data in remaining bytes
+    for (int i = 7; i < MESSAGE_SIZE; i++) {
+        msg[i] = 0xAA;
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::AUTH);
+}
+
+// =============================================================================
+// Self-ID Message Tests (Type 0x3)
+// =============================================================================
+
+TEST_F(ASTM_F3411_Test, DecodeSelfID_TextDescription) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Byte 0: Message type (0x3) | Protocol version
+    msg[0] = 0x32;
+
+    // Byte 1: Description type (0 = Text)
+    msg[1] = 0x00;
+
+    // Bytes 2-24: Description text (23 chars max)
+    std::string desc = "Survey mission flight";
+    for (size_t i = 0; i < desc.size() && i < 23; i++) {
+        msg[2 + i] = static_cast<uint8_t>(desc[i]);
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::SELF_ID);
+    EXPECT_TRUE(uav.self_id.valid);
+    EXPECT_EQ(uav.self_id.description_type, 0);
+    EXPECT_EQ(uav.self_id.description, desc);
+}
+
+TEST_F(ASTM_F3411_Test, DecodeSelfID_EmergencyType) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Message type SELF_ID
+    msg[0] = 0x32;
+
+    // Description type 1 (Emergency)
+    msg[1] = 0x01;
+
+    // Emergency description
+    std::string desc = "EMERGENCY - LOW BATTERY";
+    for (size_t i = 0; i < desc.size() && i < 23; i++) {
+        msg[2 + i] = static_cast<uint8_t>(desc[i]);
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::SELF_ID);
+    EXPECT_EQ(uav.self_id.description_type, 1);
+}
+
+TEST_F(ASTM_F3411_Test, DecodeSelfID_MaxLength) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    msg[0] = 0x32;
+    msg[1] = 0x00;
+
+    // Fill with max length (23 chars)
+    for (int i = 0; i < 23; i++) {
+        msg[2 + i] = 'A' + (i % 26);
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(uav.self_id.description.length(), 23u);
+}
+
+// =============================================================================
+// System Message Tests (Type 0x4)
+// =============================================================================
+
+TEST_F(ASTM_F3411_Test, DecodeSystem_OperatorLocation) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Byte 0: Message type (0x4) | Protocol version
+    msg[0] = 0x42;
+
+    // Byte 1: Operator location type | Classification type
+    msg[1] = 0x10;  // Location type = Takeoff
+
+    // Bytes 2-5: Operator latitude (1e-7 degrees)
+    double op_lat = 37.3861;
+    int32_t lat_enc = static_cast<int32_t>(op_lat * 1e7);
+    msg[2] = lat_enc & 0xFF;
+    msg[3] = (lat_enc >> 8) & 0xFF;
+    msg[4] = (lat_enc >> 16) & 0xFF;
+    msg[5] = (lat_enc >> 24) & 0xFF;
+
+    // Bytes 6-9: Operator longitude
+    double op_lon = -122.0839;
+    int32_t lon_enc = static_cast<int32_t>(op_lon * 1e7);
+    msg[6] = lon_enc & 0xFF;
+    msg[7] = (lon_enc >> 8) & 0xFF;
+    msg[8] = (lon_enc >> 16) & 0xFF;
+    msg[9] = (lon_enc >> 24) & 0xFF;
+
+    // Bytes 10-11: Area count
+    msg[10] = 0x01;
+    msg[11] = 0x00;
+
+    // Byte 12: Area radius (10m units)
+    msg[12] = 0x0A;  // 100m
+
+    // Bytes 13-14: Area ceiling
+    uint16_t ceiling_enc = static_cast<uint16_t>((500.0f + 1000.0f) / 0.5f);
+    msg[13] = ceiling_enc & 0xFF;
+    msg[14] = (ceiling_enc >> 8) & 0xFF;
+
+    // Bytes 15-16: Area floor
+    uint16_t floor_enc = static_cast<uint16_t>((0.0f + 1000.0f) / 0.5f);
+    msg[15] = floor_enc & 0xFF;
+    msg[16] = (floor_enc >> 8) & 0xFF;
+
+    // Bytes 17-20: Timestamp
+    uint32_t ts = 1609459200;  // 2021-01-01 00:00:00 UTC
+    msg[17] = ts & 0xFF;
+    msg[18] = (ts >> 8) & 0xFF;
+    msg[19] = (ts >> 16) & 0xFF;
+    msg[20] = (ts >> 24) & 0xFF;
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::SYSTEM);
+    EXPECT_TRUE(uav.system.valid);
+    EXPECT_NEAR(uav.system.operator_latitude, op_lat, 0.00001);
+    EXPECT_NEAR(uav.system.operator_longitude, op_lon, 0.00001);
+    EXPECT_EQ(uav.system.area_count, 1);
+    EXPECT_EQ(uav.system.area_radius, 100);
+    EXPECT_NEAR(uav.system.area_ceiling, 500.0f, 0.5f);
+    EXPECT_NEAR(uav.system.area_floor, 0.0f, 0.5f);
+}
+
+TEST_F(ASTM_F3411_Test, DecodeSystem_LiveGPS) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    msg[0] = 0x42;
+    msg[1] = 0x20;  // Location type = Live GPS
+
+    // Operator at Greenwich Observatory
+    double op_lat = 51.4769;
+    double op_lon = -0.0005;
+    int32_t lat_enc = static_cast<int32_t>(op_lat * 1e7);
+    int32_t lon_enc = static_cast<int32_t>(op_lon * 1e7);
+
+    msg[2] = lat_enc & 0xFF;
+    msg[3] = (lat_enc >> 8) & 0xFF;
+    msg[4] = (lat_enc >> 16) & 0xFF;
+    msg[5] = (lat_enc >> 24) & 0xFF;
+    msg[6] = lon_enc & 0xFF;
+    msg[7] = (lon_enc >> 8) & 0xFF;
+    msg[8] = (lon_enc >> 16) & 0xFF;
+    msg[9] = (lon_enc >> 24) & 0xFF;
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::SYSTEM);
+    EXPECT_EQ(uav.system.location_type, OperatorLocationType::LIVE_GNSS);
+}
+
+// =============================================================================
+// Operator ID Message Tests (Type 0x5)
+// =============================================================================
+
+TEST_F(ASTM_F3411_Test, DecodeOperatorID_FAANumber) {
+    std::vector<uint8_t> msg(MESSAGE_SIZE, 0);
+
+    // Byte 0: Message type (0x5) | Protocol version
+    msg[0] = 0x52;
+
+    // Byte 1: Operator ID type (0 = Operator ID)
+    msg[1] = 0x00;
+
+    // Bytes 2-21: Operator ID (20 chars)
+    std::string op_id = "FA12345678901234567";
+    for (size_t i = 0; i < op_id.size() && i < 20; i++) {
+        msg[2 + i] = static_cast<uint8_t>(op_id[i]);
+    }
+
+    auto adv = createBLEAdvertisement(msg);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::OPERATOR_ID);
+    EXPECT_TRUE(uav.operator_id.valid);
+    EXPECT_EQ(uav.operator_id.id_type, 0);
+    EXPECT_EQ(uav.operator_id.id, op_id);
+}
+
+// =============================================================================
+// Message Pack Tests (Type 0xF)
+// =============================================================================
+
+TEST_F(ASTM_F3411_Test, DecodeMessagePack_TwoMessages) {
+    // Message Pack header
+    std::vector<uint8_t> pack;
+
+    // Byte 0: Message type (0xF) | Protocol version
+    pack.push_back(0xF2);
+
+    // Byte 1: (Message size - 1) << 4 | Message count
+    // Message size = 25 bytes, count = 2
+    pack.push_back(((MESSAGE_SIZE - 1) << 4) | 0x02);
+
+    // First message: Basic ID
+    auto basic_id = createBasicIDMessage("PACK-UAV-001");
+    pack.insert(pack.end(), basic_id.begin(), basic_id.end());
+
+    // Second message: Location
+    auto location = createLocationMessage(34.0522, -118.2437, 150.0f, 5.0f, 1.0f, 90.0f);
+    pack.insert(pack.end(), location.begin(), location.end());
+
+    // Pad to expected size
+    while (pack.size() < MESSAGE_SIZE) {
+        pack.push_back(0);
+    }
+
+    auto adv = createBLEAdvertisement(pack);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.type, MessageType::MESSAGE_PACK);
+    // Verify both messages were processed
+    EXPECT_EQ(uav.id, "PACK-UAV-001");
+    EXPECT_TRUE(uav.location.valid);
+}
+
+TEST_F(ASTM_F3411_Test, DecodeMessagePack_AllTypes) {
+    // Create a pack with Basic ID + Location + Self-ID
+    std::vector<uint8_t> pack;
+
+    pack.push_back(0xF2);  // Message Pack type
+    pack.push_back(((MESSAGE_SIZE - 1) << 4) | 0x03);  // 3 messages
+
+    // Basic ID
+    auto basic_id = createBasicIDMessage("MULTI-MSG-UAV");
+    pack.insert(pack.end(), basic_id.begin(), basic_id.end());
+
+    // Location
+    auto location = createLocationMessage(40.7128, -74.0060, 200.0f, 8.0f, -1.0f, 180.0f);
+    pack.insert(pack.end(), location.begin(), location.end());
+
+    // Self-ID
+    std::vector<uint8_t> self_id(MESSAGE_SIZE, 0);
+    self_id[0] = 0x32;
+    self_id[1] = 0x00;
+    std::string desc = "Multi-msg test";
+    for (size_t i = 0; i < desc.size(); i++) {
+        self_id[2 + i] = static_cast<uint8_t>(desc[i]);
+    }
+    pack.insert(pack.end(), self_id.begin(), self_id.end());
+
+    while (pack.size() < MESSAGE_SIZE) {
+        pack.push_back(0);
+    }
+
+    auto adv = createBLEAdvertisement(pack);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(uav.id, "MULTI-MSG-UAV");
+    EXPECT_TRUE(uav.location.valid);
+    EXPECT_TRUE(uav.self_id.valid);
+    EXPECT_EQ(uav.self_id.description, desc);
+}
+
+TEST_F(ASTM_F3411_Test, DecodeMessagePack_InvalidSize) {
+    std::vector<uint8_t> pack;
+
+    pack.push_back(0xF2);
+    // Wrong message size (10 instead of 25)
+    pack.push_back((9 << 4) | 0x01);
+
+    // Partial data
+    for (int i = 0; i < 20; i++) {
+        pack.push_back(0);
+    }
+
+    auto adv = createBLEAdvertisement(pack);
+
+    UAVObject uav;
+    auto result = decoder.decode(adv, uav);
+
+    // Should handle invalid size gracefully
+    EXPECT_FALSE(result.success);
+}

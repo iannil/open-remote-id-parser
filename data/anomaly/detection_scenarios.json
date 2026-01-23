@@ -1,0 +1,170 @@
+[
+  {
+    "name": "anomaly_speed_impossible",
+    "description": "Speed exceeds physical limits (>100 m/s for consumer drone)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "payload_hex": "0d16fa0d01010102f34d05c9b4050000640000001e0000",
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "speed": 0.0
+      },
+      {
+        "timestamp_ms": 1000,
+        "payload_hex": "0d16fa0d01010102f34d05c9b4050000640190001e0000",
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "speed": 100.0
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "SPEED_IMPOSSIBLE"
+    }
+  },
+  {
+    "name": "anomaly_position_jump",
+    "description": "Position teleportation (physically impossible movement)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "notes": "San Francisco"
+      },
+      {
+        "timestamp_ms": 1000,
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+        "notes": "New York - 4000km away in 1 second"
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "POSITION_JUMP"
+    }
+  },
+  {
+    "name": "anomaly_altitude_spike",
+    "description": "Sudden altitude change (>50m in 1 second)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "altitude": 100.0
+      },
+      {
+        "timestamp_ms": 1000,
+        "altitude": 200.0,
+        "notes": "100m climb in 1 second - impossible for most drones"
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "ALTITUDE_SPIKE"
+    }
+  },
+  {
+    "name": "anomaly_replay_attack",
+    "description": "Identical message repeated (potential replay attack)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "payload_hex": "0d16fa0d01010102f34d05c9b4050000640014001e0000"
+      },
+      {
+        "timestamp_ms": 5000,
+        "payload_hex": "0d16fa0d01010102f34d05c9b4050000640014001e0000",
+        "notes": "Exact duplicate after 5 seconds"
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "REPLAY_ATTACK"
+    }
+  },
+  {
+    "name": "anomaly_rssi_spike",
+    "description": "Sudden RSSI change without position change",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "rssi": -70,
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      },
+      {
+        "timestamp_ms": 100,
+        "rssi": -30,
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "notes": "40dB jump in 100ms without movement"
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "SIGNAL_ANOMALY"
+    }
+  },
+  {
+    "name": "anomaly_timestamp_backwards",
+    "description": "Timestamp going backwards (clock manipulation)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 10000
+      },
+      {
+        "timestamp_ms": 5000,
+        "notes": "Timestamp decreased by 5 seconds"
+      }
+    ],
+    "expected": {
+      "anomaly_detected": true,
+      "anomaly_type": "TIMESTAMP_ANOMALY"
+    }
+  },
+  {
+    "name": "normal_flight_pattern",
+    "description": "Normal flight pattern - should not trigger anomaly",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "sequence": [
+      {
+        "timestamp_ms": 0,
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "altitude": 100.0,
+        "speed": 5.0
+      },
+      {
+        "timestamp_ms": 1000,
+        "latitude": 37.7750,
+        "longitude": -122.4193,
+        "altitude": 102.0,
+        "speed": 5.5
+      },
+      {
+        "timestamp_ms": 2000,
+        "latitude": 37.7751,
+        "longitude": -122.4192,
+        "altitude": 103.0,
+        "speed": 5.2
+      }
+    ],
+    "expected": {
+      "anomaly_detected": false
+    }
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "name": "basic_id_serial_number",
+    "description": "Basic ID message with Serial Number ID type",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d00011234567890abcdef12345678900000000000",
+    "expected": {
+      "parse_success": true,
+      "id_type": "SERIAL_NUMBER",
+      "ua_type": "HELICOPTER_OR_MULTIROTOR",
+      "uas_id": "1234567890ABCDEF12345678"
+    }
+  },
+  {
+    "name": "basic_id_registration_id",
+    "description": "Basic ID message with CAA Assigned Registration ID",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d00024e2d555341313233343536373839303030303000",
+    "expected": {
+      "parse_success": true,
+      "id_type": "CAA_REGISTRATION_ID",
+      "ua_type": "HELICOPTER_OR_MULTIROTOR",
+      "uas_id": "N-USA1234567890000"
+    }
+  },
+  {
+    "name": "basic_id_utm_assigned",
+    "description": "Basic ID message with UTM Assigned ID (UUID format)",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d00035550412d555449442d31323334353637382d39303030",
+    "expected": {
+      "parse_success": true,
+      "id_type": "UTM_ASSIGNED_ID",
+      "ua_type": "HELICOPTER_OR_MULTIROTOR"
+    }
+  },
+  {
+    "name": "basic_id_airplane",
+    "description": "Basic ID for fixed wing airplane",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d00011234567890abcdef12345678901000000000",
+    "expected": {
+      "parse_success": true,
+      "id_type": "SERIAL_NUMBER",
+      "ua_type": "AEROPLANE"
+    }
+  },
+  {
+    "name": "basic_id_empty_id",
+    "description": "Basic ID with empty ID field (edge case)",
+    "protocol": "ASTM_F3411",
+    "message_type": "BASIC_ID",
+    "payload_hex": "0d16fa0d0001000000000000000000000000000000000000",
+    "expected": {
+      "parse_success": true,
+      "id_type": "SERIAL_NUMBER",
+      "uas_id": ""
+    }
+  }
+]

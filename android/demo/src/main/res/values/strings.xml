@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ORIP Demo</string>
+
+    <!-- Scan status -->
+    <string name="tap_to_scan">Tap to start scanning</string>
+    <string name="scanning">Scanning for drones…</string>
+    <string name="toggle_scan">Toggle scan</string>
+
+    <!-- Stats -->
+    <string name="drone_count">%d drones</string>
+    <string name="scan_stats">Processed: %d | Remote ID: %d</string>
+
+    <!-- Empty state -->
+    <string name="no_drones_detected">No drones detected</string>
+    <string name="empty_state_hint">Start scanning to detect nearby\ndrones broadcasting Remote ID</string>
+</resources>

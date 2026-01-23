@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "orip-android"
 include(":orip")
+include(":demo")

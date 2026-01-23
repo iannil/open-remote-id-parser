@@ -42,6 +42,159 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
 
   # ==========================================================================
+  # Code Coverage
+  # ==========================================================================
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install lcov
+      run: sudo apt-get install -y lcov
+
+    - name: Configure CMake with coverage
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DORIP_BUILD_TESTS=ON -DORIP_ENABLE_COVERAGE=ON
+
+    - name: Build
+      run: cmake --build build --parallel
+
+    - name: Run tests
+      working-directory: build
+      run: ctest --output-on-failure
+
+    - name: Collect coverage data
+      run: |
+        lcov --capture --directory build --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' '*/googletest/*' '*/tests/*' --output-file coverage.info
+        lcov --list coverage.info
+
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage.info
+        fail_ci_if_error: false
+        verbose: true
+
+  # ==========================================================================
+  # Sanitizer Check
+  # ==========================================================================
+  sanitizers:
+    name: Sanitizers (ASan, UBSan)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake with sanitizers
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DORIP_BUILD_TESTS=ON -DORIP_ENABLE_SANITIZERS=ON
+
+    - name: Build
+      run: cmake --build build --parallel
+
+    - name: Run tests with sanitizers
+      working-directory: build
+      run: ctest --output-on-failure
+      env:
+        ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
+        UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+  # ==========================================================================
+  # Thread Sanitizer
+  # ==========================================================================
+  thread-sanitizer:
+    name: Thread Sanitizer (TSan)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake with ThreadSanitizer
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DORIP_BUILD_TESTS=ON -DORIP_ENABLE_TSAN=ON
+
+    - name: Build
+      run: cmake --build build --parallel
+
+    - name: Run tests with ThreadSanitizer
+      working-directory: build
+      run: ctest --output-on-failure
+      env:
+        TSAN_OPTIONS: halt_on_error=1:second_deadlock_stack=1
+
+  # ==========================================================================
+  # Fuzz Testing
+  # ==========================================================================
+  fuzzing:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Clang
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang
+
+    - name: Configure CMake with fuzzing
+      run: |
+        CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release -DORIP_BUILD_FUZZ=ON -DORIP_BUILD_TESTS=OFF
+
+    - name: Build fuzz target
+      run: cmake --build build --target fuzz_parser --parallel
+
+    - name: Create seed corpus
+      run: |
+        mkdir -p build/fuzz_corpus
+        # Copy existing corpus seeds if available
+        if [ -d "fuzz/corpus" ]; then
+          cp -r fuzz/corpus/* build/fuzz_corpus/ 2>/dev/null || true
+        fi
+
+    - name: Run fuzz tests (60 seconds)
+      run: |
+        cd build
+        ./fuzz_parser fuzz_corpus -max_len=512 -timeout=5 -max_total_time=60 -print_final_stats=1
+      continue-on-error: false
+
+    - name: Upload crash artifacts
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: fuzz-crashes
+        path: |
+          build/crash-*
+          build/leak-*
+          build/timeout-*
+
+  # ==========================================================================
+  # Performance Benchmarks
+  # ==========================================================================
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake with benchmarks
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DORIP_BUILD_BENCHMARKS=ON
+
+    - name: Build benchmarks
+      run: cmake --build build --target orip_benchmarks --parallel
+
+    - name: Run benchmarks
+      working-directory: build
+      run: ./orip_benchmarks --benchmark_format=json --benchmark_out=benchmark_results.json
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: build/benchmark_results.json
+
+  # ==========================================================================
   # Python Build and Test
   # ==========================================================================
   python-build:
@@ -122,7 +275,7 @@ jobs:
 
     - name: Check C++ formatting
       run: |
-        find include src -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror || echo "Formatting issues found (non-blocking)"
+        find include src -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -135,7 +288,12 @@ jobs:
     - name: Lint Python code
       working-directory: python
       run: |
-        ruff check orip/ || echo "Lint issues found (non-blocking)"
+        ruff check orip/
+
+    - name: Type check Python code
+      working-directory: python
+      run: |
+        mypy orip/ --ignore-missing-imports
 
   # ==========================================================================
   # Documentation
@@ -152,7 +310,6 @@ jobs:
       with:
         use-quiet-mode: 'yes'
         config-file: '.github/mlc_config.json'
-      continue-on-error: true
 
   # ==========================================================================
   # Release Build

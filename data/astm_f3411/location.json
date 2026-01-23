@@ -1,0 +1,81 @@
+[
+  {
+    "name": "location_basic",
+    "description": "Basic location message with valid coordinates",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b4050000640014001e0000",
+    "expected": {
+      "parse_success": true,
+      "status": "AIRBORNE",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "altitude_geo": 100.0,
+      "height_agl": 50.0,
+      "speed_horizontal": 10.0,
+      "speed_vertical": 2.0
+    },
+    "notes": "San Francisco coordinates"
+  },
+  {
+    "name": "location_ground",
+    "description": "Location message - drone on ground",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01000002f34d05c9b4050000000000000000",
+    "expected": {
+      "parse_success": true,
+      "status": "ON_GROUND",
+      "speed_horizontal": 0.0,
+      "speed_vertical": 0.0
+    }
+  },
+  {
+    "name": "location_high_speed",
+    "description": "Location message with high horizontal speed",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b40500006400fa001e0000",
+    "expected": {
+      "parse_success": true,
+      "speed_horizontal": 62.5,
+      "notes": "250 * 0.25 = 62.5 m/s"
+    }
+  },
+  {
+    "name": "location_negative_altitude",
+    "description": "Location below sea level (Dead Sea area)",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b405f0ff0000000000",
+    "expected": {
+      "parse_success": true,
+      "altitude_geo": -8.0,
+      "notes": "Dead Sea is ~430m below sea level"
+    }
+  },
+  {
+    "name": "location_max_altitude",
+    "description": "Location at maximum reportable altitude",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010102f34d05c9b405feff0000000000",
+    "expected": {
+      "parse_success": true,
+      "altitude_geo": 32766.5,
+      "notes": "Near max value for altitude encoding"
+    }
+  },
+  {
+    "name": "location_equator_prime_meridian",
+    "description": "Location at (0, 0) - Gulf of Guinea",
+    "protocol": "ASTM_F3411",
+    "message_type": "LOCATION",
+    "payload_hex": "0d16fa0d01010100000000000000000064000000000",
+    "expected": {
+      "parse_success": true,
+      "latitude": 0.0,
+      "longitude": 0.0
+    }
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "name": "eu_operator_id_valid",
+    "description": "Valid EU Operator ID format",
+    "protocol": "ASD_STAN",
+    "message_type": "OPERATOR_ID",
+    "payload_hex": "0d16fa0d05464e4c2d4f502d313233343536373800000000",
+    "expected": {
+      "parse_success": true,
+      "operator_id": "FNL-OP-12345678",
+      "country_code": "FNL",
+      "is_eu_format": true
+    }
+  },
+  {
+    "name": "eu_operator_id_germany",
+    "description": "German operator ID",
+    "protocol": "ASD_STAN",
+    "message_type": "OPERATOR_ID",
+    "payload_hex": "0d16fa0d054445552d4f502d393837363534333200000000",
+    "expected": {
+      "parse_success": true,
+      "operator_id": "DEU-OP-98765432",
+      "country_code": "DEU",
+      "is_eu_format": true
+    }
+  },
+  {
+    "name": "eu_operator_id_france",
+    "description": "French operator ID",
+    "protocol": "ASD_STAN",
+    "message_type": "OPERATOR_ID",
+    "payload_hex": "0d16fa0d054652412d4f502d313131313131313100000000",
+    "expected": {
+      "parse_success": true,
+      "operator_id": "FRA-OP-11111111",
+      "country_code": "FRA",
+      "is_eu_format": true
+    }
+  },
+  {
+    "name": "eu_operator_id_invalid_format",
+    "description": "Invalid EU Operator ID format (wrong structure)",
+    "protocol": "ASD_STAN",
+    "message_type": "OPERATOR_ID",
+    "payload_hex": "0d16fa0d055858582d4f502d313233343536373800000000",
+    "expected": {
+      "parse_success": true,
+      "operator_id": "XXX-OP-12345678",
+      "is_eu_format": false,
+      "validation_error": "Invalid country code"
+    }
+  },
+  {
+    "name": "eu_operator_id_short",
+    "description": "Truncated operator ID",
+    "protocol": "ASD_STAN",
+    "message_type": "OPERATOR_ID",
+    "payload_hex": "0d16fa0d054445552d00000000000000000000000000000000",
+    "expected": {
+      "parse_success": true,
+      "is_eu_format": false,
+      "validation_error": "ID too short"
+    }
+  }
+]
