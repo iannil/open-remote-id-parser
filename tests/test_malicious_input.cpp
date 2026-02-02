@@ -55,13 +55,13 @@ protected:
 TEST_F(MaliciousInputTest, AllZeroPayload_Empty) {
     std::vector<uint8_t> payload;
     auto result = parser.parse(payload, -60);
-    EXPECT_FALSE(result.success());
+    EXPECT_FALSE(result.success);
 }
 
 TEST_F(MaliciousInputTest, AllZeroPayload_SingleByte) {
     auto payload = createRepeatedPayload(0x00, 1);
     auto result = parser.parse(payload, -60);
-    EXPECT_FALSE(result.success());
+    EXPECT_FALSE(result.success);
 }
 
 TEST_F(MaliciousInputTest, AllZeroPayload_MinLength) {
@@ -196,7 +196,7 @@ TEST_F(MaliciousInputTest, TruncatedMessage_ASTMBasicID) {
     };
 
     auto result = parser.parse(payload, -60);
-    EXPECT_FALSE(result.success());
+    EXPECT_FALSE(result.success);
 }
 
 TEST_F(MaliciousInputTest, TruncatedMessage_ASTMLocation) {
@@ -210,14 +210,14 @@ TEST_F(MaliciousInputTest, TruncatedMessage_ASTMLocation) {
     };
 
     auto result = parser.parse(payload, -60);
-    EXPECT_FALSE(result.success());
+    EXPECT_FALSE(result.success);
 }
 
 TEST_F(MaliciousInputTest, TruncatedMessage_OneByte) {
     for (uint8_t byte = 0; byte < 255; byte++) {
         std::vector<uint8_t> payload = {byte};
         auto result = parser.parse(payload, -60);
-        EXPECT_FALSE(result.success());
+        EXPECT_FALSE(result.success);
     }
 }
 
@@ -387,7 +387,7 @@ TEST_F(MaliciousInputTest, ProtocolConfusion_InvalidCompanyID) {
     payload.resize(30, 0x00);
 
     auto result = parser.parse(payload, -60);
-    EXPECT_FALSE(result.success());
+    EXPECT_FALSE(result.success);
 }
 
 // ============================================
