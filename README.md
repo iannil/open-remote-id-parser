@@ -435,7 +435,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Completed
 
-- [x] **Core Engine**: C++ parsing library with zero-copy design
+- [x] **Core Engine**: C++ parsing library with zero-copy design (~2,500 lines)
 - [x] **ASTM F3411**: Full support for all 7 message types (Basic ID, Location, Authentication, Self-ID, System, Operator ID, Message Pack)
 - [x] **ASD-STAN EN 4709-002**: European standard with EU Operator ID validation
 - [x] **GB/T Interface**: Placeholder for Chinese standard (awaiting specification)
@@ -448,20 +448,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] **Trajectory Analysis**: Smoothing, prediction, pattern classification
 - [x] **Unit Tests**: 70+ test cases covering all modules
 - [x] **Documentation**: README (EN/CN), CONTRIBUTING, CHANGELOG
+- [x] **Release Artifacts**: `/release/v0.1.0` with headers and platform-specific libs (Android, Linux, macOS, Windows, Python)
+- [x] **Android Sample App**: Complete demo with MainActivity, ViewModel, UAV list, and detail dialog
+- [x] **Performance Benchmarks**: Google Benchmark framework integration for parsing latency tests
 
 ### In Progress
 
-- [ ] **Release Artifacts**: Build `/release` directory with static/shared libs
-- [ ] **CI/CD Enhancement**: GitHub Actions build verification
-- [ ] **Performance Benchmarks**: Parsing latency, memory profiling
+- [ ] **CI/CD Enhancement**: GitHub Actions build verification and automated releases
+- [ ] **Real Device Testing**: Validation with captured packets from actual drones
 
 ### Planned
 
-- [ ] **v0.1.0 Release**: First official release
-- [ ] **Android Sample App**: Complete integration example
-- [ ] **Real Device Testing**: Validation with captured packets from actual drones
+- [ ] **v0.1.0 Release**: Tag and publish first official release to GitHub
 - [ ] **API Documentation**: Auto-generated reference docs (Doxygen)
 - [ ] **iOS Bindings**: Swift wrapper via C API
+- [ ] **GB/T Implementation**: Chinese standard decoder (pending specification clarity)
 
 ## Acknowledgments
 

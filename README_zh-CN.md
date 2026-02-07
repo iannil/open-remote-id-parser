@@ -435,7 +435,7 @@ find src include -name "*.cpp" -o -name "*.h" | xargs clang-format -i
 
 ### 已完成
 
-- [x] **核心引擎**: 零拷贝设计的 C++ 解析库
+- [x] **核心引擎**: 零拷贝设计的 C++ 解析库（约 2,500 行代码）
 - [x] **ASTM F3411**: 完整支持全部 7 种消息类型（Basic ID、Location、Authentication、Self-ID、System、Operator ID、Message Pack）
 - [x] **ASD-STAN EN 4709-002**: 欧洲标准，含 EU Operator ID 验证
 - [x] **GB/T 接口**: 中国国标预留（等待规范发布）
@@ -448,20 +448,21 @@ find src include -name "*.cpp" -o -name "*.h" | xargs clang-format -i
 - [x] **轨迹分析**: 平滑、预测、模式分类
 - [x] **单元测试**: 70+ 测试用例覆盖所有模块
 - [x] **文档**: README（中/英）、CONTRIBUTING、CHANGELOG
+- [x] **发布产物**: `/release/v0.1.0` 包含头文件和平台库（Android、Linux、macOS、Windows、Python）
+- [x] **Android 示例应用**: 完整的 Demo 应用（MainActivity、ViewModel、无人机列表、详情对话框）
+- [x] **性能基准测试**: 集成 Google Benchmark 框架的解析延迟测试
 
 ### 进行中
 
-- [ ] **发布产物**: 构建 `/release` 目录（静态库/共享库）
-- [ ] **CI/CD 完善**: GitHub Actions 构建验证
-- [ ] **性能基准测试**: 解析延迟、内存占用分析
+- [ ] **CI/CD 完善**: GitHub Actions 构建验证和自动发布
+- [ ] **真机测试**: 使用真实无人机抓包数据验证
 
 ### 计划中
 
-- [ ] **v0.1.0 发布**: 首个正式版本
-- [ ] **Android 示例应用**: 完整的集成示例
-- [ ] **真机测试**: 使用真实无人机抓包数据验证
+- [ ] **v0.1.0 发布**: 在 GitHub 上打标签并发布首个正式版本
 - [ ] **API 文档**: 自动生成参考文档（Doxygen）
 - [ ] **iOS 绑定**: 通过 C API 的 Swift 封装
+- [ ] **GB/T 实现**: 中国标准解码器（等待规范明确）
 
 ## 致谢
 
